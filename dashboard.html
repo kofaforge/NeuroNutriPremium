@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | NeuroNutri</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h2>🍽️ Meu Planejamento</h2>
+      <div style="display:flex; gap:10px; align-items:center">
+        <span id="userEmail" style="color:var(--text-muted)"></span>
+        <button id="logoutBtn" class="btn btn-outline" style="padding:8px 12px; font-size:14px">Sair</button>
+      </div>
+    </header>
+
+    <div id="trialBanner" class="trial-banner">
+      ⏳ Seu teste gratuito termina em <strong id="trialDays"></strong> dias.
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>📅 Hoje</h3>
+        <p><strong>Café:</strong> Mingau de aveia com banana (textura suave)</p>
+        <p><strong>Almoço:</strong> Arroz, frango desfiado, cenoura cozida</p>
+        <p><strong>Jantar:</strong> Sopa de legumes batida + purê de batata</p>
+      </div>
+      <div class="card">
+        <h3>💡 Dica Sensorial</h3>
+        <p>Introduza novos alimentos junto com um "alimento seguro" conhecido. Mantenha horários fixos para reduzir ansiedade.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paywall (escondido por padrão) -->
+  <div id="paywall" class="paywall" style="display:none">
+    <h2>⏱️ Teste gratuito encerrado</h2>
+    <p>Continue acessando planejamentos personalizados, progressão sensorial e suporte nutricional.</p>
+    <button id="subscribeBtn" class="btn btn-primary">Assinar por R$ 29,90/mês</button>
+    <p style="margin-top:12px; font-size:14px; color:var(--text-muted)">Cancele quando quiser. 7 dias de garantia.</p>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if (!localStorage.getItem('supabase.auth.token')) {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

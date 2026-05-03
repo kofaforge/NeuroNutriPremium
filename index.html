@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroNutri - Alimentação para Crianças Autistas</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧠 NeuroNutri</h1>
+      <button id="loginBtn" class="btn btn-outline">Entrar / Cadastrar</button>
+    </header>
+
+    <main class="grid-2">
+      <div class="card">
+        <h2>Planejamento alimentar sensorial</h2>
+        <p>Cardápios adaptados, texturas seguras e rotinas previsíveis para crianças no espectro.</p>
+        <ul style="margin:16px 0; padding-left:20px; color:var(--text-muted)">
+          <li>✅ Evita sobrecarga sensorial</li>
+          <li>✅ Progressão gradual de alimentos</li>
+          <li>✅ Dicas de terapeutas nutricionais</li>
+        </ul>
+      </div>
+      <div class="card" id="authForm">
+        <h2>Comece grátis por 5 dias</h2>
+        <input type="email" id="email" placeholder="Seu melhor e-mail">
+        <input type="password" id="password" placeholder="Crie uma senha (min. 6 caracteres)">
+        <button id="signupBtn" class="btn btn-primary" style="width:100%">Criar conta grátis</button>
+        <p style="margin-top:12px; text-align:center; color:var(--text-muted); font-size:14px">
+          Já tem conta? <a href="#" id="toggleAuth">Fazer login</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Redireciona se já estiver logado
+    if (localStorage.getItem('supabase.auth.token')) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>

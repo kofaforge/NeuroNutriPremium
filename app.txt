@@ -1,0 +1,124 @@
+// CONFIGURAÇÃO
+const SUPABASE_URL = 'https://SEU-PROJETO.supabase.co'; // 👈 Troque pela URL real do seu projeto
+const SUPABASE_ANON_KEY = 'sb_publishable_yAMPzra54DEUhD8evwyyNg_yP046Hwe';
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TSnqUFTSIxJv0QUZzfSnC8F6pjdqVrEgfA3pufS5JgZp02TfUiAg5AGwLXl09fehaegQardoOpfYcSzJdsQuj4j00V8L2mr5z';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const stripe = window.Stripe(STRIPE_PUBLISHABLE_KEY);
+
+// AUTH FLOW
+const authForm = document.getElementById('authForm');
+const emailInput = document.getElementById('email');
+const passInput = document.getElementById('password');
+const signupBtn = document.getElementById('signupBtn');
+const toggleAuth = document.getElementById('toggleAuth');
+let isSignup = true;
+
+if (signupBtn) {
+  signupBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const password = passInput.value.trim();
+    if (!email || !password) return alert('Preencha e-mail e senha.');
+
+    try {
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        alert('Conta criada! Verifique seu e-mail para confirmar.');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        window.location.href = 'dashboard.html';
+      }
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    }
+  });
+
+  if (toggleAuth) {
+    toggleAuth.addEventListener('click', (e) => {
+      e.preventDefault();
+      isSignup = !isSignup;
+      signupBtn.textContent = isSignup ? 'Criar conta grátis' : 'Entrar';
+      toggleAuth.textContent = isSignup ? 'Fazer login' : 'Criar conta';
+    });
+  }
+}
+
+// DASHBOARD LOGIC
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('trial_ends_at, subscription_status')
+    .eq('id', session.user.id)
+    .single();
+
+  if (document.getElementById('userEmail')) {
+    document.getElementById('userEmail').textContent = session.user.email;
+  }
+
+  // Checa trial
+  const now = new Date();
+  const trialEnd = new Date(profile?.trial_ends_at || now);
+  const isActive = trialEnd > now || profile?.subscription_status === 'active';
+
+  if (!isActive) {
+    document.getElementById('paywall').style.display = 'flex';
+    document.getElementById('trialBanner').style.display = 'none';
+  } else {
+    const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+    if (document.getElementById('trialDays')) {
+      document.getElementById('trialDays').textContent = daysLeft > 0 ? daysLeft : 0;
+    }
+  }
+});
+
+// STRIPE CHECKOUT
+const subBtn = document.getElementById('subscribeBtn');
+if (subBtn) {
+  subBtn.addEventListener('click', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return alert('Faça login primeiro.');
+
+    // Fluxo client-side seguro (MVP)
+    const { error } = await stripe.redirectToCheckout({
+      mode: 'subscription',
+      lineItems: [{ price: 'price_SEU_ID_AQUI', quantity: 1 }], // 👈 Crie no Stripe Dashboard
+      customerEmail: session.user.email,
+      successUrl: `${location.origin}/dashboard.html?checkout=success`,
+      cancelUrl: `${location.origin}/dashboard.html?checkout=cancel`,
+      clientReferenceId: session.user.id
+    });
+
+    if (error) alert('Erro no checkout: ' + error.message);
+  });
+}
+
+// Atualiza status após retorno do Stripe
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('checkout') === 'success') {
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await supabase.from('profiles').update({
+        subscription_status: 'active',
+        trial_ends_at: null
+      }).eq('id', session.user.id);
+      localStorage.removeItem('stripe_redirect_pending');
+      window.location.replace(window.location.pathname);
+    }
+  })();
+}
+
+// LOGOUT
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    localStorage.clear();
+    window.location.href = 'index.html';
+  });
+}
