@@ -1,5 +1,5 @@
 // CONFIGURAÇÃO
-const SUPABASE_URL = 'https://SEU-PROJETO.supabase.co'; // 👈 Troque pela URL real do seu projeto
+const SUPABASE_URL = 'https://ucrnfwoqnhurruuaxxjm.supabase.co'; // 
 const SUPABASE_ANON_KEY = 'sb_publishable_yAMPzra54DEUhD8evwyyNg_yP046Hwe';
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TSnqUFTSIxJv0QUZzfSnC8F6pjdqVrEgfA3pufS5JgZp02TfUiAg5AGwLXl09fehaegQardoOpfYcSzJdsQuj4j00V8L2mr5z';
 
@@ -86,7 +86,7 @@ if (subBtn) {
     // Fluxo client-side seguro (MVP)
     const { error } = await stripe.redirectToCheckout({
       mode: 'subscription',
-      lineItems: [{ price: 'price_SEU_ID_AQUI', quantity: 1 }], // 👈 Crie no Stripe Dashboard
+      lineItems: [{ price: 'price_1TSo5gFTSIxJv0QU4O4UQ4dr', quantity: 1 }], // 
       customerEmail: session.user.email,
       successUrl: `${location.origin}/dashboard.html?checkout=success`,
       cancelUrl: `${location.origin}/dashboard.html?checkout=cancel`,
